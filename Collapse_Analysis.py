@@ -1,8 +1,23 @@
+import pandas as pd
+import numpy as np
+import sys
 
 
+inv = sys.argv[1] # INV_vep.csv
+dup = sys.argv[2] # DUP_vep.csv
+dell = sys.argv[3] # 'DEL_vep.csv'
+ins = sys.argv[4] # INS_vep.csv
+filtered_inv = pd.read_csv(inv, delimiter = "\t")
+filtered_dup = pd.read_csv(dup, delimiter = "\t")
+filtered_del = pd.read_csv(dell, delimiter = "\t")
+filtered_ins = pd.read_csv(ins, delimiter = "\t")
 
-
-
+hpo = sys.argv[5] # Recurrent_respiratory_infections.csv
+covid_tab = sys.argv[6] # panelApp
+covid_ncbi_tab = sys.argv[7] # ncbi
+respiratory_infections = pd.read_csv(hpo, delimiter = "\t")
+covid = pd.read_csv(covid_tab,  delimiter = "\t")
+covid_ncbi = pd.read_csv(covid_ncbi_tab, delimiter= "\t")
 
 
 #function counter_gene to count how many different SV are found in each gene
