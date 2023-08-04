@@ -21,4 +21,6 @@ The inputs needed are:
 The last three files are necessary to perform the annotation at the end of the collapse.
   
 To run the script use the following code:
+
+
 _python Collapse_Analysis.py 661_covid_patients_finalreport.csv 661_samples_info_complete.xlsx Recurrent_respiratory_infections.csv COVID-19 research.tsv gene_result.txt_
