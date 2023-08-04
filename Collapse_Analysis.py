@@ -44,7 +44,10 @@ filtered_tab = df_new[((np.isnan(df_new['MAF'])) |
                       ((~np.isnan(df_new['MAF'])) & (df_new['MAF'] <= 0.001999)))].reset_index(drop=True)
 
 # creating table for each svtype
+
 inv_df = filtered_tab[filtered_tab['SVTYPE'] == 'INV']
+# from column 35 on there are the samples with their genotypes and that part of the dataframe must be transposed.
+# change with the number of column from which the samples start 
 INV_reshape = pd.melt(inv_df, id_vars=inv_df.columns[:35], value_vars=inv_df.columns[35:], var_name='sample_name', value_name='genotype')
 INV = INV_reshape.drop(INV_reshape[INV_reshape['genotype'] == ' ./.'].index)
 column_names_inv = INV.columns.tolist()
