@@ -5,6 +5,9 @@
 *  count how many variants are present in each gene;
 *  count in how many samples each gene is seen;
 *  annotate the genes with list of genes involved in COVID19 or chronic respiratory infections from NCBI, PanelApp and Human Phenotype Ontology.
+
+
+
 Before performing the collapse analysis, the script is intended to manipulate the file coming from the annotation with VEP and performing the following operations:
 *  filtering based on MAF;
 *  split based on SVTYPE;
