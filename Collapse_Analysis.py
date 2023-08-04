@@ -3,21 +3,103 @@ import numpy as np
 import sys
 
 
-inv = sys.argv[1] # INV_vep.csv
-dup = sys.argv[2] # DUP_vep.csv
-dell = sys.argv[3] # 'DEL_vep.csv'
-ins = sys.argv[4] # INS_vep.csv
-filtered_inv = pd.read_csv(inv, delimiter = "\t")
-filtered_dup = pd.read_csv(dup, delimiter = "\t")
-filtered_del = pd.read_csv(dell, delimiter = "\t")
-filtered_ins = pd.read_csv(ins, delimiter = "\t")
+report_tab = sys.argv[1] # report file coming from VEP
+tab = pd.read_csv(report_tab, delimiter = "\t")
+file_patients = sys.argv[2] # excel file containing all info on patients 
+info_file = pd.read_excel(file_patients)
 
-hpo = sys.argv[5] # Recurrent_respiratory_infections.csv
-covid_tab = sys.argv[6] # panelApp
-covid_ncbi_tab = sys.argv[7] # ncbi
+hpo = sys.argv[3] # Recurrent_respiratory_infections.csv
+covid_tab = sys.argv[4] # panelApp
+covid_ncbi_tab = sys.argv[5] # ncbi
 respiratory_infections = pd.read_csv(hpo, delimiter = "\t")
 covid = pd.read_csv(covid_tab,  delimiter = "\t")
 covid_ncbi = pd.read_csv(covid_ncbi_tab, delimiter= "\t")
+
+# select the MAF
+for i in range(len(tab)):
+    allele_freq = tab.loc[i, 'SV_overlap_AF'].split(",")[0]
+    values = allele_freq.split("&")
+    float_list = []
+    
+    for value in values:
+        if value == ".":
+            float_list.append(float('nan'))
+        elif 'e' in value.lower():  # Check if value contains scientific notation
+            float_list.append(float(value))
+        else:
+            float_list.append(float(value))
+    
+    max_allele_freq = max(float_list)
+    tab.loc[i, 'MAF'] = max_allele_freq
+
+tab_columns = tab.columns.tolist()
+last_column = tab_columns[-1]
+df_without_last = tab.drop(columns=[last_column])
+fifth_column = tab_columns[5]
+# Create a new DataFrame with the last column inserted at the fifth position
+df_new = pd.concat([df_without_last.iloc[:, :5], tab[last_column], df_without_last.iloc[:, 5:]], axis=1)
+
+# filter for MAF either as a point or smaller than the threshold
+filtered_tab = df_new[((np.isnan(df_new['MAF'])) |
+                      ((~np.isnan(df_new['MAF'])) & (df_new['MAF'] <= 0.001999)))].reset_index(drop=True)
+
+# creating table for each svtype
+inv_df = filtered_tab[filtered_tab['SVTYPE'] == 'INV']
+INV_reshape = pd.melt(inv_df, id_vars=inv_df.columns[:35], value_vars=inv_df.columns[35:], var_name='sample_name', value_name='genotype')
+INV = INV_reshape.drop(INV_reshape[INV_reshape['genotype'] == ' ./.'].index)
+column_names_inv = INV.columns.tolist()
+new_column_order_inv = column_names_inv[-2:] + column_names_inv[:-2]
+INV = INV[new_column_order_inv].reset_index(drop=True)
+
+del_df = filtered_tab[filtered_tab['SVTYPE'] == 'DEL']
+DEL_reshape = pd.melt(del_df, id_vars=del_df.columns[:35], value_vars=del_df.columns[35:], var_name='sample_name', value_name='genotype')
+DEL = DEL_reshape.drop(DEL_reshape[DEL_reshape['genotype'] == ' ./.'].index)
+column_names_del = DEL.columns.tolist()
+new_column_order_del = column_names_del[-2:] + column_names_del[:-2]
+DEL = DEL[new_column_order_del].reset_index(drop=True)
+
+
+ins_df = filtered_tab[filtered_tab['SVTYPE'] == 'INS']
+INS_reshape = pd.melt(ins_df, id_vars=ins_df.columns[:35], value_vars=ins_df.columns[35:], var_name='sample_name', value_name='genotype')
+INS = INS_reshape.drop(INS_reshape[INS_reshape['genotype'] == ' ./.'].index)
+column_names_ins = INS.columns.tolist()
+new_column_order_ins = column_names_ins[-2:] + column_names_ins[:-2]
+INS = INS[new_column_order_ins].reset_index(drop=True)
+
+
+dup_df = filtered_tab[filtered_tab['SVTYPE'] == 'DUP']
+DUP_reshape = pd.melt(dup_df, id_vars=dup_df.columns[:35], value_vars=dup_df.columns[35:], var_name='sample_name', value_name='genotype')
+DUP = DUP_reshape.drop(DUP_reshape[DUP_reshape['genotype'] == ' ./.'].index)
+column_names_dup = DUP.columns.tolist()
+new_column_order_dup = column_names_dup[-2:] + column_names_dup[:-2]
+DUP = DUP[new_column_order_dup].reset_index(drop=True)
+
+
+# Remove Bellaria
+inv_wgs_wps_df = INV[~INV['sample_name'].str.startswith(('WGS', 'WP2'))].reset_index(drop=True)
+ins_wgs_wps_df = INS[~INS['sample_name'].str.startswith(('WGS', 'WP2'))].reset_index(drop=True)
+del_wgs_wps_df = DEL[~DEL['sample_name'].str.startswith(('WGS', 'WP2'))].reset_index(drop=True)
+dup_wgs_wps_df = DUP[~DUP['sample_name'].str.startswith(('WGS', 'WP2'))].reset_index(drop=True)
+
+# remove variants that have svlen between 50 and 100
+filtered_inv = inv_wgs_wps_df[~inv_wgs_wps_df['SVLEN'].between(50, 100)].reset_index(drop=True)
+filtered_ins = ins_wgs_wps_df[~ins_wgs_wps_df['SVLEN'].between(50, 100)].reset_index(drop=True)
+filtered_dup = dup_wgs_wps_df[~dup_wgs_wps_df['SVLEN'].between(50, 100)].reset_index(drop=True)
+filtered_del = del_wgs_wps_df[~del_wgs_wps_df['SVLEN'].between(-100, -50)].reset_index(drop=True)
+
+
+# add the WHOCPS from the excel file containing all info from the patients
+filtered_inv['WHOCPS'] = filtered_inv['sample_name'].map(info_file.set_index('Sample Name')['WHOCPS'])
+filtered_del['WHOCPS'] = filtered_del['sample_name'].map(info_file.set_index('Sample Name')['WHOCPS'])
+filtered_dup['WHOCPS'] = filtered_dup['sample_name'].map(info_file.set_index('Sample Name')['WHOCPS'])
+filtered_ins['WHOCPS'] = filtered_ins['sample_name'].map(info_file.set_index('Sample Name')['WHOCPS'])
+
+# exporting the dataframes to use them for further analysis on R
+filtered_inv.to_csv('INV_vep.csv', index=False, sep='\t')
+filtered_ins.to_csv('INS_vep.csv', index=False, sep='\t')
+filtered_del.to_csv('DEL_vep.csv', index=False, sep='\t')
+filtered_dup.to_csv('DUP_vep.csv', index=False, sep='\t')
+
 
 
 #function counter_gene to count how many different SV are found in each gene
