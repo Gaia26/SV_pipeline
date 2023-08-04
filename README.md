@@ -18,9 +18,10 @@ The inputs needed are:
 *   _hpo_: list of genes involved in chronic respiratory infections coming from human phenotype ontology (as _Recurrent_respiratory_infections.csv_);
 *  _covid_tab_: list of genes involved in COVID19 from previous researches coming from PanelApp (as _COVID-19 research.tsv_);
 *  _covid_ncbi_tab_:  list of genes involved in COVID19 from previous researches coming from NCBI (as _gene_result.txt_).
+
+
 The last three files are necessary to perform the annotation at the end of the collapse.
   
-To run the script use the following code:
-
+To execute the script, utilize the following code (modify it according to your file names and absolute paths of the files):
 
 _python Collapse_Analysis.py 661_covid_patients_finalreport.csv 661_samples_info_complete.xlsx Recurrent_respiratory_infections.csv COVID-19 research.tsv gene_result.txt_
