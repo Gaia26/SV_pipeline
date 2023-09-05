@@ -47,9 +47,6 @@ filtered_tab = df_new[((np.isnan(df_new['MAF'])) |
 sample_1 = '001DWB'
 index_df = inv_df.columns.get_loc(sample_1) # get  the index of the column 001DWB from which the following reshape start
 
-
-
-
 inv_df = filtered_tab[filtered_tab['SVTYPE'] == 'INV']
 # from column index_df on there are the samples with their genotypes and that part of the dataframe must be transposed.
 INV_reshape = pd.melt(inv_df, id_vars=inv_df.columns[:index_df], value_vars=inv_df.columns[index_df:], var_name='sample_name', value_name='genotype')
