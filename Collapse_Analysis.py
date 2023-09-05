@@ -44,18 +44,22 @@ filtered_tab = df_new[((np.isnan(df_new['MAF'])) |
                       ((~np.isnan(df_new['MAF'])) & (df_new['MAF'] <= 0.001999)))].reset_index(drop=True)
 
 # creating table for each svtype
+sample_1 = '001DWB'
+index_df = inv_df.columns.get_loc(sample_1) # get  the index of the column 001DWB from which the following reshape start
+
+
+
 
 inv_df = filtered_tab[filtered_tab['SVTYPE'] == 'INV']
-# from column 35 on there are the samples with their genotypes and that part of the dataframe must be transposed.
-# change with the number of column from which the samples start 
-INV_reshape = pd.melt(inv_df, id_vars=inv_df.columns[:35], value_vars=inv_df.columns[35:], var_name='sample_name', value_name='genotype')
+# from column index_df on there are the samples with their genotypes and that part of the dataframe must be transposed.
+INV_reshape = pd.melt(inv_df, id_vars=inv_df.columns[:index_df], value_vars=inv_df.columns[index_df:], var_name='sample_name', value_name='genotype')
 INV = INV_reshape.drop(INV_reshape[INV_reshape['genotype'] == ' ./.'].index)
 column_names_inv = INV.columns.tolist()
 new_column_order_inv = column_names_inv[-2:] + column_names_inv[:-2]
 INV = INV[new_column_order_inv].reset_index(drop=True)
 
 del_df = filtered_tab[filtered_tab['SVTYPE'] == 'DEL']
-DEL_reshape = pd.melt(del_df, id_vars=del_df.columns[:35], value_vars=del_df.columns[35:], var_name='sample_name', value_name='genotype')
+DEL_reshape = pd.melt(del_df, id_vars=del_df.columns[:index_df], value_vars=del_df.columns[index_df:], var_name='sample_name', value_name='genotype')
 DEL = DEL_reshape.drop(DEL_reshape[DEL_reshape['genotype'] == ' ./.'].index)
 column_names_del = DEL.columns.tolist()
 new_column_order_del = column_names_del[-2:] + column_names_del[:-2]
@@ -63,7 +67,7 @@ DEL = DEL[new_column_order_del].reset_index(drop=True)
 
 
 ins_df = filtered_tab[filtered_tab['SVTYPE'] == 'INS']
-INS_reshape = pd.melt(ins_df, id_vars=ins_df.columns[:35], value_vars=ins_df.columns[35:], var_name='sample_name', value_name='genotype')
+INS_reshape = pd.melt(ins_df, id_vars=ins_df.columns[:index_df], value_vars=ins_df.columns[index_df:], var_name='sample_name', value_name='genotype')
 INS = INS_reshape.drop(INS_reshape[INS_reshape['genotype'] == ' ./.'].index)
 column_names_ins = INS.columns.tolist()
 new_column_order_ins = column_names_ins[-2:] + column_names_ins[:-2]
@@ -71,7 +75,7 @@ INS = INS[new_column_order_ins].reset_index(drop=True)
 
 
 dup_df = filtered_tab[filtered_tab['SVTYPE'] == 'DUP']
-DUP_reshape = pd.melt(dup_df, id_vars=dup_df.columns[:35], value_vars=dup_df.columns[35:], var_name='sample_name', value_name='genotype')
+DUP_reshape = pd.melt(dup_df, id_vars=dup_df.columns[:index_df], value_vars=dup_df.columns[index_df:], var_name='sample_name', value_name='genotype')
 DUP = DUP_reshape.drop(DUP_reshape[DUP_reshape['genotype'] == ' ./.'].index)
 column_names_dup = DUP.columns.tolist()
 new_column_order_dup = column_names_dup[-2:] + column_names_dup[:-2]
