@@ -123,11 +123,7 @@ def counter_gene(tab):
         seen_elements.append((chrom, pos, end, gene_list))
     return dict_gene
 
-
-
-
-
-
+#function tracker_sample is to check in which patients the variants are found; a second dictionary is created to keep count of the WHOCPS of the selected patients.
 def tracker_sample(tab):
     dict_sample = {}
     dict_whocps = {}
@@ -148,23 +144,6 @@ def tracker_sample(tab):
                     val2 = val2 + ', ' + whocps
                     dict_whocps[gene] = val2
     return dict_sample, dict_whocps
-
-
-# def tracker_sample(tab):
-#     dict_sample = {}
-#     for i in range(len(tab)):
-#         sample = (tab.loc[i, 'sample_name'])
-#         gene_list = tab.loc[i, 'SYMBOL'].split(",")
-#         for gene in gene_list:
-#             if gene not in dict_sample: 
-#                 dict_sample[gene] = sample
-#             else:
-#                 if sample not in dict_sample[gene]:
-#                     val = dict_sample[gene]
-#                     val = val + ', ' + sample
-#                     dict_sample[gene] = val
-#     return dict_sample        
-
            
 
 
@@ -197,18 +176,20 @@ del_complete_tab = sample_count(del_table)
 
 
 dup_gene = counter_gene(filtered_dup)
-dup_sample = tracker_sample(filtered_dup)
+dup_sample, dup_whocps = tracker_sample(filtered_dup)
 dup_table = pd.DataFrame(list(dup_gene.items()), columns = ['SYMBOL', 'Count'])
 dup_table['SVTYPE'] = 'DUP'
 dup_table['Samples'] = list(dup_sample.values())
+dup_table['WHOCPS'] = list(dup_whocps.values())
 dup_complete_tab = sample_count(dup_table)
 
 
 ins_gene = counter_gene(filtered_ins)
-ins_sample = tracker_sample(filtered_ins)
+ins_sample, ins_whocps = tracker_sample(filtered_ins)
 ins_table = pd.DataFrame(list(ins_gene.items()), columns = ['SYMBOL', 'Count'])
 ins_table['SVTYPE'] = 'INS'
 ins_table['Samples'] = list(ins_sample.values())
+ins_table['WHOCPS'] = list(ins_whocps.values())
 ins_complete_tab = sample_count(ins_table)
 
 # check if the genes present are found in the list of genes taken from hpo for respiratory infections
