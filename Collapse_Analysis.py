@@ -139,6 +139,28 @@ def tracker_sample(tab):
                     dict_sample[gene] = val
     return dict_sample
 
+# tracker sample function excluding all genes that are represented by a '.'
+    
+def tracker_sample(tab):
+    dict_sample = {}
+    for i in range(len(tab)):
+        sample = (tab.loc[i, 'sample_name'])
+        gene_list = tab.loc[i, 'SYMBOL'].split(",")
+        for gene in gene_list:
+            if gene != '.':
+                if gene not in dict_sample:
+                    dict_sample[gene] = sample
+                else:
+                    if sample not in dict_sample[gene]:
+                        val = dict_sample[gene]
+                        val = val + ', ' + sample
+                        dict_sample[gene] = val
+    return dict_sample
+                        
+
+           
+
+
 # count how many samples are present in the newly formed Sample column
 def sample_count(tab):
     tab['Samples_Count'] = ''
