@@ -123,40 +123,56 @@ def counter_gene(tab):
         seen_elements.append((chrom, pos, end, gene_list))
     return dict_gene
 
-# function tracker_sample is to check in which patients the variants are found
-def tracker_sample(tab):
-    dict_sample = {}
-    for i in range(len(tab)):
-        sample = (tab.loc[i, 'sample_name'])
-        gene_list = tab.loc[i, 'SYMBOL'].split(",")
-        for gene in gene_list:
-            if gene not in dict_sample: 
-                dict_sample[gene] = sample
-            else:
-                if sample not in dict_sample[gene]:
-                    val = dict_sample[gene]
-                    val = val + ', ' + sample
-                    dict_sample[gene] = val
-    return dict_sample
 
-# tracker sample function excluding all genes that are represented by a '.'
-    
+
+
+
+
 def tracker_sample(tab):
     dict_sample = {}
+    dict_whocps = {}
     for i in range(len(tab)):
         sample = (tab.loc[i, 'sample_name'])
+        whocps = tab.loc[i, 'WHOCPS']
         gene_list = tab.loc[i, 'SYMBOL'].split(",")
         for gene in gene_list:
             if gene != '.':
                 if gene not in dict_sample:
                     dict_sample[gene] = sample
+                    dict_whocps[gene] = whocps
                 else:
                     if sample not in dict_sample[gene]:
                         val = dict_sample[gene]
                         val = val + ', ' + sample
                         dict_sample[gene] = val
-    return dict_sample
-                        
+                        val2 = dict_whocps[gene]
+                        val2 = val2 + ', ' + whocps
+                        dict_whocps[gene] = val2
+    return dict_sample, dict_whocps
+
+
+
+
+
+
+
+
+
+
+# def tracker_sample(tab):
+#     dict_sample = {}
+#     for i in range(len(tab)):
+#         sample = (tab.loc[i, 'sample_name'])
+#         gene_list = tab.loc[i, 'SYMBOL'].split(",")
+#         for gene in gene_list:
+#             if gene not in dict_sample: 
+#                 dict_sample[gene] = sample
+#             else:
+#                 if sample not in dict_sample[gene]:
+#                     val = dict_sample[gene]
+#                     val = val + ', ' + sample
+#                     dict_sample[gene] = val
+#     return dict_sample        
 
            
 
@@ -172,10 +188,11 @@ def sample_count(tab):
 
 
 inv_gene = counter_gene(filtered_inv)
-inv_sample = tracker_sample(filtered_inv)
-inv_table = pd.DataFrame(list(inv_gene.items()), columns = ['SYMBOL', 'Count'])
+inv_sample, inv_whocps = tracker_sample(filtered_inv)
+inv_table = pd.DataFrame(list(inv_gene.items()), columns = ['SYMBOL', 'Count', 'WHOCPS'])
 inv_table['SVTYPE'] = 'INV'
 inv_table['Samples'] = list(inv_sample.values())
+inv_table['WHOCPS'] = list(inv_whocps.values())
 inv_complete_tab = sample_count(inv_table)
 
 
