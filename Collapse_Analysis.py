@@ -136,27 +136,18 @@ def tracker_sample(tab):
         whocps = tab.loc[i, 'WHOCPS']
         gene_list = tab.loc[i, 'SYMBOL'].split(",")
         for gene in gene_list:
-            if gene != '.':
-                if gene not in dict_sample:
-                    dict_sample[gene] = sample
-                    dict_whocps[gene] = whocps
-                else:
-                    if sample not in dict_sample[gene]:
-                        val = dict_sample[gene]
-                        val = val + ', ' + sample
-                        dict_sample[gene] = val
-                        val2 = dict_whocps[gene]
-                        val2 = val2 + ', ' + whocps
-                        dict_whocps[gene] = val2
+            if gene not in dict_sample:
+                dict_sample[gene] = sample
+                dict_whocps[gene] = whocps
+            else:
+                if sample not in dict_sample[gene]:
+                    val = dict_sample[gene]
+                    val = val + ', ' + sample
+                    dict_sample[gene] = val
+                    val2 = dict_whocps[gene]
+                    val2 = val2 + ', ' + whocps
+                    dict_whocps[gene] = val2
     return dict_sample, dict_whocps
-
-
-
-
-
-
-
-
 
 
 # def tracker_sample(tab):
@@ -189,7 +180,7 @@ def sample_count(tab):
 
 inv_gene = counter_gene(filtered_inv)
 inv_sample, inv_whocps = tracker_sample(filtered_inv)
-inv_table = pd.DataFrame(list(inv_gene.items()), columns = ['SYMBOL', 'Count', 'WHOCPS'])
+inv_table = pd.DataFrame(list(inv_gene.items()), columns = ['SYMBOL', 'Count'])
 inv_table['SVTYPE'] = 'INV'
 inv_table['Samples'] = list(inv_sample.values())
 inv_table['WHOCPS'] = list(inv_whocps.values())
@@ -197,10 +188,11 @@ inv_complete_tab = sample_count(inv_table)
 
 
 del_gene = counter_gene(filtered_del)
-del_sample = tracker_sample(filtered_del)
+del_sample, del_whocps = tracker_sample(filtered_del)
 del_table = pd.DataFrame(list(del_gene.items()), columns = ['SYMBOL', 'Count'])
 del_table['SVTYPE'] = 'DEL'
 del_table['Samples'] = list(del_sample.values())
+del_table['WHOCPS'] = list(del_whocps.values())
 del_complete_tab = sample_count(del_table)
 
 
